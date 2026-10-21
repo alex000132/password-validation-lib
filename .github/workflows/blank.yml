@@ -2,11 +2,11 @@ name: .NET Regression Tests
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "master" ]
     paths:
       - '**.cs'
   pull_request:
-    branches: [ "main" ]
+    branches: [ "master" ]
     paths:
       - '**.cs'
 
@@ -29,6 +29,11 @@ jobs:
       - name: Build solution
         run: dotnet build --no-restore --configuration Release
 
-      # Запуск тестов с покрытием и сохранением результатов в TRX
       - name: Run tests with coverage and generate TRX log
-        run: dotnet test --no-build --configuration Release --logger "trx;LogFileName=test_results.trx" /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura
+        run: dotnet test --no-build --configuration Release --logger "trx;LogFileName=test_results.trx" /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura /p:CoverletOutput=./coverage-report/
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage-report/
