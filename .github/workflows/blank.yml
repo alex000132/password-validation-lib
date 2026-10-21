@@ -1,0 +1,34 @@
+name: .NET Regression Tests
+
+on:
+  push:
+    branches: [ "master" ]
+    paths:
+      - '**.cs'
+  pull_request:
+    branches: [ "master" ]
+    paths:
+      - '**.cs'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build solution
+        run: dotnet build --no-restore --configuration Release
+
+      # Запуск тестов с покрытием и сохранением результатов в TRX
+      - name: Run tests with coverage and generate TRX log
+        run: dotnet test --no-build --configuration Release --logger "trx;LogFileName=test_results.trx" /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura
